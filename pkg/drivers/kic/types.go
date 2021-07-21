@@ -24,15 +24,13 @@ import (
 
 const (
 	// Version is the current version of kic
-	Version = "v0.0.17-1613704090-10418"
+	Version = "v0.0.25"
 	// SHA of the kic base image
-	baseImageSHA = "876f620cdc40b4616e4e11db64524c520e252ede006357eaa963488ae852b6ed"
+	baseImageSHA = "6f936e3443b95cd918d77623bf7b595653bb382766e280290a02b4a349e88b79"
 	// The name of the GCR kicbase repository
-	gcrRepo = "gcr.io/k8s-minikube/kicbase-builds"
+	gcrRepo = "gcr.io/k8s-minikube/kicbase"
 	// The name of the Dockerhub kicbase repository
-	dockerhubRepo = "kicbase/build"
-	// The name of the Github Packages repository
-	ghRepo = "kicbase"
+	dockerhubRepo = "kicbase/stable"
 )
 
 var (
@@ -44,11 +42,9 @@ var (
 		// the fallback of BaseImage in case gcr.io is not available. stored in docker hub
 		// same image is push to https://github.com/kicbase/stable
 		fmt.Sprintf("%s:%s@sha256:%s", dockerhubRepo, Version, baseImageSHA),
-
-		// the fallback of BaseImage in case gcr.io is not available. stored in github packages https://github.com/kubernetes/minikube/packages/206071
-		// github packages docker does _NOT_ support pulling by sha as mentioned in the docs:
-		// https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages
-		fmt.Sprintf("docker.pkg.github.com/kubernetes/minikube/%s:%s", ghRepo, Version),
+		// try without sha because #11068
+		fmt.Sprintf("%s:%s", gcrRepo, Version),
+		fmt.Sprintf("%s:%s", dockerhubRepo, Version),
 	}
 )
 
@@ -69,4 +65,5 @@ type Config struct {
 	ContainerRuntime  string            // container runtime kic is running
 	Network           string            //  network to run with kic
 	ExtraArgs         []string          // a list of any extra option to pass to oci binary during creation time, for example --expose 8080...
+	ListenAddress     string            // IP Address to listen to
 }
